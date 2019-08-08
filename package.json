@@ -10,7 +10,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "webpack --env.NODE_ENV=production --config webpack.config.js",
-    "start": "webpack-dev-server --env.NODE_ENV=develop --open"
+    "start": "node './server/server.js' & webpack-dev-server --env.NODE_ENV=develop --open "
   },
   "devDependencies": {
     "clean-webpack-plugin": "^2.0.2",

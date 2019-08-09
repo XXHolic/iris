@@ -43,6 +43,7 @@ module.exports = env => {
       contentBase: path.resolve(__dirname, "dist"),
       port: 9000,
       hot: true,
+      stats: 'errors-only',
       overlay: true, // 如果代码出错，会在浏览器页面弹出“浮动层”。
       // historyApiFallback: true
     },

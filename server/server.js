@@ -8,7 +8,7 @@ var server = http.createServer(function(req, res) {
     var pathname = url.parse(req.url).pathname; //得到请求的路径
     pathname = pathname.replace(/\//, ""); //替换掉前面的 /
     pathname = pathname?pathname:'index';
-    console.log('pathname',pathname);
+    // console.log('pathname',pathname);
     router[pathname](req, res);
   } else {
       res.writeHead(302, {

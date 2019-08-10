@@ -11,7 +11,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "webpack --env.NODE_ENV=production --config webpack.config.js",
     "start": "node './server/server.js' & webpack-dev-server --env.NODE_ENV=develop --open ",
-    "start2": "node './server/server.js'"
+    "server": "node './server/server.js'"
   },
   "devDependencies": {
     "clean-webpack-plugin": "^2.0.2",

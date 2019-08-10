@@ -45,5 +45,14 @@ module.exports = {
     );
     res.writeHead(200, "ok");
     res.end(data);
+  },
+  jsonp: function(req, res, queryObj) {
+    var data = JSON.stringify({ isJSONP: true });
+    var callBack = queryObj.callBack;
+    // console.log(callBack);
+    res.setHeader("Content-Type", "application/json;charset=utf-8");
+    res.writeHead(200, "ok");
+    var backData = callBack + "(" + data + ")";
+    res.end(backData);
   }
 };

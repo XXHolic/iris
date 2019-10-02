@@ -1,3 +1,6 @@
+var formidable = require('formidable');
+var util = require('util');
+
 module.exports = {
   index: function(req, res) {
     res.setHeader("Content-Type", "text/html;charset=utf-8");
@@ -54,5 +57,31 @@ module.exports = {
     res.writeHead(200, "ok");
     var backData = callBack + "(" + data + ")";
     res.end(backData);
+  },
+  upload: function(req, res, queryObj) {
+
+
+    var form = new formidable.IncomingForm();
+
+    form.parse(req, function(err, fields, files) {
+      var data = JSON.stringify({
+        code: 200,
+        data: {fields: fields, files: files}
+      });
+
+      res.setHeader("Access-Control-Allow-Origin", "*");
+      res.setHeader(
+        "Access-Control-Allow-Headers",
+        "Content-Type,Content-Length,Authorization,Accept,X-Requested-With"
+      );
+      res.setHeader(
+        "Access-Control-Allow-Methods",
+        "PUT,POST,GET,DELETE,OPTIONS"
+      );
+      res.writeHead(200,'ok');
+      res.end(data);
+    });
+
+    return;
   }
 };

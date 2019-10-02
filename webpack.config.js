@@ -20,7 +20,22 @@ module.exports = env => {
     },
     module: {
       rules: [
-
+        {
+          test: /\.js$/,
+          exclude: "/node_modules",
+          use: {
+            loader: "babel-loader",
+            options: {
+              presets: [["@babel/preset-env"], ["@babel/preset-react"]],
+              plugins: [
+                "@babel/transform-arrow-functions",
+                ["@babel/plugin-proposal-decorators", { legacy: true }],
+                ["@babel/plugin-proposal-class-properties", { loose: true }],
+                "@babel/plugin-syntax-dynamic-import"
+              ]
+            }
+          }
+        },
       ]
     },
     plugins: [

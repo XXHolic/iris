@@ -1,3 +1,9 @@
+import React from 'react';
+import ReactDOM from "react-dom";
+import App from "./App";
+
+ReactDOM.render(<App></App>,document.getElementById("root"));
+
 // CORS
 fetch("http://localhost:9001/simpleCrossOriginRequest")
   .then(response => response.json())

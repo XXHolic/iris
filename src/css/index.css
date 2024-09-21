@@ -1,0 +1,41 @@
+.lv-flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.lv-cursor-pointer {
+  cursor: pointer;
+}
+.lv-dn {
+  display: none;
+}
+
+.lv-main {
+  display: flex;
+  height: 100%;
+}
+
+.lv-left {
+  overflow: hidden;
+  width: 120px;
+  background-color: #ededed;
+  height: 100%;
+}
+
+.lv-menu-item {
+  line-height: 60px;
+  padding-left: 30px;
+  cursor: pointer;
+}
+
+.lv-menu-active,
+.lv-menu-item:hover {
+  background-color: #e4e4e4;
+}
+
+.lv-right {
+  position: relative;
+  flex: 1;
+  padding: 20px;
+  background-color: #fff;
+}

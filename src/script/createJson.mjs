@@ -5,16 +5,17 @@ import { request, get } from 'node:https';
 import { matchData } from './util.mjs';
 
 const targetId = 1;
-const targetName = '肖申克的救赎';
+const targetName = '葬送的芙莉莲';
 const typePath = ['anima', 'movie', 'tv'];
-const dir = `local/${typePath[1]}/${targetId}`;
+const dir = `local/${typePath[0]}/${targetId}`;
+const originDir = `../${dir}`;
 const jsonFile = `../${dir}/data.json`;
-const filePath = `./createJson.html`; // 这个作为分析保持在本地临时数据
+const filePath = `./demo.html`; // 这个作为分析保持在本地临时数据
 
 const options = {
   hostname: 'movie.douban.com',
   port: 443,
-  path: '/subject/1292052/',
+  path: '/subject/36093351/',
   method: 'GET',
 };
 
@@ -28,7 +29,7 @@ const defaultData = {
   type: [], // 类型，需要支持搜索，所以单独字段
   region: [], // 地区，需要支持搜索，所以单独字段
   releaseDate: '', //日期，这里只显示最早上映的一个日期，需要支持搜索，所以单独字段
-  douban: 'https://movie.douban.com/subject/1292052/', // 豆瓣链接
+  douban: 'https://movie.douban.com/subject/36093351/', // 豆瓣链接
   msg: [], // 根据爬取获取的信息
   intro: '',//剧情简介
   list: [{ name: '1', type: 'mp4' }] // 剧集和电影公用的字段，{ name: '1', type: 'mp4' }
@@ -43,7 +44,6 @@ const getData = () => {
 
     res.on('end', () => {
       // console.log('end:', data);
-      // 不确定的时候就先把信息存在本地看看
       writeFileSync(filePath, data);
     });
 
@@ -72,9 +72,15 @@ const formatData = () => {
   // 获取导演编剧等描述信息
   const infoReg = /<div id="info">([\s\S]*?)<\/div*?>/g;
   const infoStr = matchData(str, infoReg);
+  // console.log('--- infoStr start ---');
+  // console.log(infoStr);
+  // console.log('--- infoStr end ---');
   if (infoStr) {
     const spanReg = /<span class=+.*?>([\s\S]*?)<br \/>/g;
     const spanResult = matchData(infoStr, spanReg, true);
+    // console.log('--- spanResult start ---');
+    // console.log(spanResult);
+    // console.log('--- spanResult end ---');
     if (spanResult) {
       defaultData.msg = spanResult;
       // 提取类型，这里注意并不是全部都是统一的位置，需要自己查看
@@ -91,12 +97,14 @@ const formatData = () => {
         defaultData.type = typeArr;
       }
       // 提取地区，这里注意并不是全部都是统一的位置，需要自己查看
-      const regionEle = spanResult[4];
+      // const regionEle = spanResult[4];
+      const regionEle = spanResult[5]; // 这种情况是有的条目增加一个官方网站展示
       const regionStr = regionEle.substring(33, regionEle.length - 6);
       const region = regionStr.split('/');
       defaultData.region = region;
       // 提取日期，这里注意并不是全部都是统一的位置，需要自己查看
-      const dateEle = spanResult[6];
+      // const dateEle = spanResult[6];
+      const dateEle = spanResult[7]; // 这种情况是有的条目增加一个官方网站展示
       const dateReg = /content="([\s\S]*?)"/g;
       const dateStr = matchData(dateEle, dateReg);
       const numReg = /\d{4}-\d{2}-\d{2}/g;
@@ -114,9 +122,67 @@ const formatData = () => {
   // console.log(defaultData)
 }
 
+const fileArr = [];
+const getFileData = (dir) => {
+  const exist = existsSync(dir);
+  // 排除不需要遍历的文件夹或文件
+  const excludeDir = /^(\.|node_module)/;
+  if (!exist) {
+    console.error("目录路径不存在");
+    return;
+  }
+  const pa = readdirSync(dir);
+
+  for (let index = 0; index < pa.length; index++) {
+    let file = pa[index];
+    const pathName = join(dir, file);
+    const info = statSync(pathName);
+    if (info.isDirectory() && !excludeDir.test(file)) {
+      getFileData(pathName);
+    } else {
+      const fileType = extname(file);
+      if ([".mp4"].includes(fileType)) {
+        const fullName = basename(file);
+        fileArr.push({ name: fullName, type: fileType.substring(1) });
+      }
+    }
+  }
+};
+
+// 排序
+const dataSort = (arr) => {
+  // console.log("初始数组：", arr); // 5,4,3,2,1
+  const len = arr.length;
+  //一次次遍历，有多少个数就遍历多少次
+  for (let i = 0; i < len; i++) {
+    //循环两两比较数组中的数字
+    for (let j = 0; j < len; j++) {
+      const ele1 = arr[j],
+        ele2 = arr[j + 1];
+      //if判断，如果数组中的当前一个比后一个大，那么两个交换一下位置
+      if (ele1 && ele2 && parseFloat(ele1.name) > parseFloat(ele2.name)) {
+        var tmp = { ...arr[j] };
+        arr[j] = { ...arr[j + 1] };
+        arr[j + 1] = tmp;
+      }
+    }
+  }
+};
+
+// 读取源文件名称
+const formatOrigin = () => {
+  getFileData(originDir);
+  if (fileArr.length > 1) {
+    dataSort(fileArr);
+  }
+  defaultData.list = fileArr;
+  // console.log('fileArr', fileArr);
+}
+
 // 保存数据
 const saveData = () => {
   formatData();
+  formatOrigin();
 
   const foldPath = `../${dir}`;
   if (!existsSync(foldPath)) {

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>本地音乐播放器</title>
+  <link rel="shortcut icon" href="./favicon.ico" />
+  <link rel="stylesheet" href="./css/reset.css" />
+  <link rel="stylesheet" href="./css/index.css" />
+</head>
+
+<body>
+  <div class="lv-main">
+    <div class="lv-left">
+      <div class="lv-menu-item lv-menu-active" data-type="anima">动画</div>
+      <div class="lv-menu-item" data-type="movie">电影</div>
+      <div class="lv-menu-item" data-type="tv">电视剧</div>
+    </div>
+    <div class="lv-right">
+      <div class="lv-anima">
+        <div>动画测试</div>
+        <div>
+          <video width="320" height="240" controls id="lvVideo"></video>
+        </div>
+      </div>
+      <div class="lv-movie lv-dn">电影</div>
+      <div class="lv-tv lv-dn">电视剧</div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { init } from './js/index.js'
+    window.onload = () => {
+      init();
+      // 通过测试，用加载是否报错的方式判断是否支持在网页播放，
+      // 报错就直接给文字提示并显示本地路径，自行找本地播放软件播放
+      const videoEle = document.querySelector('#lvVideo');
+      videoEle.src = "./local/hh.mkv";
+      // videoEle.src = "./local/movie.mp4";
+      videoEle.addEventListener("canplay", (event) => {
+        console.log("Video can start, but not sure it will play through.");
+      });
+      videoEle.addEventListener("error", (e) => {
+        console.error(e);
+      });
+    }
+  </script>
+</body>
+
+</html>

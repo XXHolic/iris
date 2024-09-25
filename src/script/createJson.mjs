@@ -1,21 +1,23 @@
 import { readFileSync, writeFileSync, readdirSync, statSync, existsSync, rename, mkdirSync } from "node:fs";
 import { basename, dirname, resolve, join, extname } from "node:path";
-import { fileURLToPath } from "node:url";
 import { request, get } from 'node:https';
 import { matchData } from './util.mjs';
 
-const targetId = 1;
-const targetName = '葬送的芙莉莲';
+const targetId = 2;
+const targetName = '蓝眼武士';
+const videoType = [".mp4"]; // 遍历文件重命名的判断依据
+const pageType = 2;// 不同类型的词条有些区别，1-一般，2-带有 官方网站 字段的情况
 const typePath = ['anima', 'movie', 'tv'];
 const dir = `local/${typePath[0]}/${targetId}`;
 const originDir = `../${dir}`;
 const jsonFile = `../${dir}/data.json`;
 const filePath = `./demo.html`; // 这个作为分析保持在本地临时数据
 
+const code = "35524249";
 const options = {
   hostname: 'movie.douban.com',
   port: 443,
-  path: '/subject/36093351/',
+  path: `/subject/${code}/`,
   method: 'GET',
 };
 
@@ -29,10 +31,10 @@ const defaultData = {
   type: [], // 类型，需要支持搜索，所以单独字段
   region: [], // 地区，需要支持搜索，所以单独字段
   releaseDate: '', //日期，这里只显示最早上映的一个日期，需要支持搜索，所以单独字段
-  douban: 'https://movie.douban.com/subject/36093351/', // 豆瓣链接
+  douban: `https://movie.douban.com/subject/${code}/`, // 豆瓣链接
   msg: [], // 根据爬取获取的信息
   intro: '',//剧情简介
-  list: [{ name: '1', type: 'mp4' }] // 剧集和电影公用的字段，{ name: '1', type: 'mp4' }
+  list: [] // 剧集和电影公用的字段，{ name: '1', type: 'mp4' }
 }
 
 // 请求获取数据
@@ -45,6 +47,7 @@ const getData = () => {
     res.on('end', () => {
       // console.log('end:', data);
       writeFileSync(filePath, data);
+      console.log('页面保存到本地 demo.html');
     });
 
   });
@@ -53,73 +56,6 @@ const getData = () => {
     console.error(e);
   });
   req.end();
-}
-
-// 解析数据
-const formatData = () => {
-  const str = readFileSync(filePath, 'utf8');
-  // 获取宣传海报
-  const posterReg = /<div id="mainpic"+.*?>([\s\S]*?)<\/div*?>/g;
-  const posterStr = matchData(str, posterReg);
-  if (posterStr) {
-    const imgReg = /src="([\s\S]*?)"/g;
-    const imgStr = matchData(posterStr, imgReg);
-    if (imgStr) {
-      defaultData.poster = imgStr.substring(5, imgStr.length - 1);
-    }
-  }
-
-  // 获取导演编剧等描述信息
-  const infoReg = /<div id="info">([\s\S]*?)<\/div*?>/g;
-  const infoStr = matchData(str, infoReg);
-  // console.log('--- infoStr start ---');
-  // console.log(infoStr);
-  // console.log('--- infoStr end ---');
-  if (infoStr) {
-    const spanReg = /<span class=+.*?>([\s\S]*?)<br \/>/g;
-    const spanResult = matchData(infoStr, spanReg, true);
-    // console.log('--- spanResult start ---');
-    // console.log(spanResult);
-    // console.log('--- spanResult end ---');
-    if (spanResult) {
-      defaultData.msg = spanResult;
-      // 提取类型，这里注意并不是全部都是统一的位置，需要自己查看
-      const typeEle = spanResult[3];
-      const typeReg = /property="v:genre">([\s\S]*?)<\/span>/g;
-      const typeResult = matchData(typeEle, typeReg, true);
-      if (typeResult) {
-        // console.log('typeResult', typeResult)
-        const typeArr = typeResult.map(ele => {
-          const txtReg = /[\u4e00-\u9fa5]+/g
-          const txt = matchData(ele, txtReg);
-          return txt;
-        })
-        defaultData.type = typeArr;
-      }
-      // 提取地区，这里注意并不是全部都是统一的位置，需要自己查看
-      // const regionEle = spanResult[4];
-      const regionEle = spanResult[5]; // 这种情况是有的条目增加一个官方网站展示
-      const regionStr = regionEle.substring(33, regionEle.length - 6);
-      const region = regionStr.split('/');
-      defaultData.region = region;
-      // 提取日期，这里注意并不是全部都是统一的位置，需要自己查看
-      // const dateEle = spanResult[6];
-      const dateEle = spanResult[7]; // 这种情况是有的条目增加一个官方网站展示
-      const dateReg = /content="([\s\S]*?)"/g;
-      const dateStr = matchData(dateEle, dateReg);
-      const numReg = /\d{4}-\d{2}-\d{2}/g;
-      const numStr = matchData(dateStr, numReg);
-      defaultData.releaseDate = numStr.substring(0, 4);
-    }
-    // console.log(spanResult)
-
-  }
-
-  // 获取简介 span class="all hidden"
-  const summaryReg = /<span property="v:summary"+.*?>([\s\S]*?)<\/span>/g;
-  defaultData.intro = matchData(str, summaryReg)
-
-  // console.log(defaultData)
 }
 
 const fileArr = [];
@@ -141,9 +77,9 @@ const getFileData = (dir) => {
       getFileData(pathName);
     } else {
       const fileType = extname(file);
-      if ([".mp4"].includes(fileType)) {
+      if (videoType.includes(fileType)) {
         const fullName = basename(file);
-        fileArr.push({ name: fullName, type: fileType.substring(1) });
+        fileArr.push({ path: pathName, name: fullName, type: fileType.substring(1) });
       }
     }
   }
@@ -169,19 +105,128 @@ const dataSort = (arr) => {
   }
 };
 
-// 读取源文件名称
+// 读取源文件名称并重新命名
+const renameOrigin = () => {
+  getFileData(originDir);
+  let listData = [];
+  if (fileArr.length > 1) {
+    listData = fileArr.map(ele => {
+      const { name, type } = ele;
+      // 重命名格式1处理：xx.xx.S01E01.xx.HD中字[xx]
+      const nameReg = /E+\d{2}/g;
+      const newNameStr = matchData(name, nameReg);
+      const newName = parseFloat(newNameStr.substring(1));
+      rename(ele.path, `${originDir}/${newName}.${type}`, (err) => {
+        if (err) throw err;
+      });
+
+      return { name: `${newName}.${type}`, type };
+    });
+  } else {
+    // 电影这类只有一个视频，统一命名为 1
+    listData = fileArr.map(ele => {
+      const { type } = ele;
+      rename(ele.path, `${originDir}/1.${type}`, (err) => {
+        if (err) throw err;
+      });
+
+      return { name: `1.${type}`, type };
+    });
+  }
+  // console.log('listData', listData);
+}
+
+
+// 解析数据
+const formatPage = (pageType) => {
+  const str = readFileSync(filePath, 'utf8');
+  // 获取宣传海报
+  const posterReg = /<div id="mainpic"+.*?>([\s\S]*?)<\/div*?>/g;
+  const posterStr = matchData(str, posterReg);
+  if (posterStr) {
+    const imgReg = /src="([\s\S]*?)"/g;
+    const imgStr = matchData(posterStr, imgReg);
+    if (imgStr) {
+      defaultData.poster = imgStr.substring(5, imgStr.length - 1);
+    }
+  }
+
+  // 获取导演编剧等描述信息
+  const infoReg = /<div id="info">([\s\S]*?)<\/div*?>/g;
+  const infoStr = matchData(str, infoReg);
+  // console.log('--- infoStr start ---');
+  // console.log(infoStr);
+  // console.log('--- infoStr end ---');
+  if (infoStr) {
+    const spanReg = /<span class=+.*?>([\s\S]*?)<br\s*?\/>/g;
+    const spanResult = matchData(infoStr, spanReg, true);
+    // console.log('--- spanResult start ---');
+    // console.log(spanResult);
+    // console.log('--- spanResult end ---');
+    if (spanResult) {
+      defaultData.msg = spanResult;
+      // 提取类型，这里注意并不是全部都是统一的位置，需要自己查看
+      const typeEle = spanResult[3];
+      const typeReg = /property="v:genre">([\s\S]*?)<\/span>/g;
+      const typeResult = matchData(typeEle, typeReg, true);
+      if (typeResult) {
+        // console.log('typeResult', typeResult)
+        const typeArr = typeResult.map(ele => {
+          const txtReg = /[\u4e00-\u9fa5]+/g
+          const txt = matchData(ele, txtReg);
+          return txt;
+        })
+        defaultData.type = typeArr;
+      }
+      // 提取地区，这里注意并不是全部都是统一的位置，需要自己查看
+      let regionEle = spanResult[4];
+      if (pageType == 2) {
+        regionEle = spanResult[5]; // 这种情况是有的条目增加一个 官方网站 字段
+      }
+      const regionStr = regionEle.substring(33, regionEle.length - 6);
+      const regionArr = regionStr.split('/');
+      const region = regionArr.map(ele => {
+        return ele.trim();
+      })
+      defaultData.region = region;
+      // 提取日期，这里注意并不是全部都是统一的位置，需要自己查看
+      let dateEle = spanResult[6];
+      if (pageType == 2) {
+        dateEle = spanResult[7]; // 这种情况是有的条目增加一个 官方网站 字段
+      }
+      const dateReg = /content="([\s\S]*?)"/g;
+      const dateStr = matchData(dateEle, dateReg);
+      const numReg = /\d{4}-\d{2}-\d{2}/g;
+      const numStr = matchData(dateStr, numReg);
+      defaultData.releaseDate = numStr.substring(0, 4);
+    }
+    // console.log(spanResult)
+
+  }
+
+  // 获取简介 span class="all hidden"
+  const summaryReg = /<span property="v:summary"+.*?>([\s\S]*?)<\/span>/g;
+  defaultData.intro = matchData(str, summaryReg)
+
+  // console.log(defaultData)
+}
+
 const formatOrigin = () => {
   getFileData(originDir);
+  const listData = fileArr.map(ele => {
+    const { name, type } = ele;
+    return { name, type };
+  });
   if (fileArr.length > 1) {
-    dataSort(fileArr);
+    dataSort(listData);
   }
-  defaultData.list = fileArr;
-  // console.log('fileArr', fileArr);
+  defaultData.list = listData;
+  // console.log('defaultData', defaultData);
 }
 
 // 保存数据
 const saveData = () => {
-  formatData();
+  formatPage(pageType);
   formatOrigin();
 
   const foldPath = `../${dir}`;
@@ -219,7 +264,8 @@ const saveData = () => {
   writeFileSync(jsonFile, JSON.stringify(defaultData));
   console.log(`${targetName} 信息 json 文件生成`);
 }
-
+//分为三步：先重命名源文件，再获取页面放到本地，最后解析生成json文件。分开单独执行
+// renameOrigin()
 // getData();
 saveData();
 

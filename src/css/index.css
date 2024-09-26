@@ -1,13 +1,25 @@
-.lv-flex-center {
+.lv-fc {
   display: flex;
   align-items: center;
   justify-content: center;
 }
-.lv-cursor-pointer {
+.lv-cp {
   cursor: pointer;
 }
 .lv-dn {
   display: none;
+}
+.lv-c1 {
+  color: #9499a0;
+}
+.lv-c2 {
+  color: #27a;
+}
+.lv-mr10 {
+  margin-right: 10px;
+}
+.lv-mb10 {
+  margin-bottom: 10px;
 }
 
 .lv-main {
@@ -38,4 +50,42 @@
   flex: 1;
   padding: 20px;
   background-color: #fff;
+}
+
+.lv-anima-category {
+  display: flex;
+  gap: 0 20px;
+  margin-bottom: 20px;
+}
+.lv-category {
+  flex-shrink: 0;
+}
+.lv-anima-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px 0;
+  max-width: 1000px;
+}
+.lv-anima-item {
+  display: flex;
+  gap: 0 20px;
+}
+.lv-anima-poster {
+  width: 160px;
+  max-height: 224px;
+}
+.lv-anima-img {
+  width: 100%;
+  object-fit: cover;
+}
+.lv-anima-msg {
+  width: 140px;
+}
+.lv-anima-load {
+  width: 960px;
+  margin-top: 20px;
+  text-align: center;
+  line-height: 50px;
+  border-radius: 4px;
+  background-color: #e4e4e4;
 }

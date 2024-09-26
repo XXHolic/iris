@@ -1,4 +1,5 @@
 import { showTrigger } from "./util.js";
+import { animaInit } from './anima.js';
 
 const init = () => {
   const animaEle = document.querySelector(".lv-anima");
@@ -18,6 +19,7 @@ const init = () => {
         movieMenu.setAttribute("class", "lv-menu-item");
         tvMenu.setAttribute("class", "lv-menu-item");
         showTrigger.show(animaEle, [movieEle, tvEle]);
+        animaInit();
         break;
       }
       case "movie": {
@@ -38,6 +40,8 @@ const init = () => {
       }
     }
   });
+
+  animaInit();
 }
 
 export { init };

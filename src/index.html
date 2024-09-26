@@ -19,14 +19,104 @@
     </div>
     <div class="lv-right">
       <div class="lv-anima">
-        <div>动画测试</div>
-        <div>
-          <video width="320" height="240" controls id="lvVideo"></video>
+        <div id="animaFilter">
+          <div class="lv-anima-category">
+            <span class="lv-category lv-c1">类别</span>
+            <div id="animaCategory">
+              <span class="lv-mr10 lv-cp lv-c2" data-type="category">全部</span>
+              <span class="lv-mr10 lv-cp" data-type="category">剧集</span>
+              <span class="lv-mr10 lv-cp" data-type="category">剧场版</span>
+              <span class="lv-mr10 lv-cp" data-type="category">电影</span>
+            </div>
+          </div>
+          <div class="lv-anima-category">
+
+            <span class="lv-category lv-c1">年份</span>
+            <div id="animaDate">
+              <span class="lv-mr10 lv-cp lv-c2" data-type="date">全部</span>
+              <span class="lv-mr10 lv-cp" data-type="date">2024</span>
+              <span class="lv-mr10 lv-cp" data-type="date">2023</span>
+              <span class="lv-mr10 lv-cp" data-type="date">2022</span>
+            </div>
+          </div>
+          <div class="lv-anima-category">
+            <span class="lv-category lv-c1">地区</span>
+            <div id="animaRegion">
+              <span class="lv-mr10 lv-cp lv-c2" data-type="region">全部</span>
+              <span class="lv-mr10 lv-cp" data-type="region">中国</span>
+              <span class="lv-mr10 lv-cp" data-type="region">美国</span>
+              <span class="lv-mr10 lv-cp" data-type="region">日本</span>
+            </div>
+          </div>
+
+          <div class="lv-anima-category">
+
+            <span class="lv-category lv-c1">类型</span>
+            <div id="animaType">
+              <span class="lv-mr10 lv-cp lv-c2" data-type="type">全部</span>
+              <span class="lv-mr10 lv-cp" data-type="type">剧情</span>
+              <span class="lv-mr10 lv-cp" data-type="type">恐怖</span>
+              <span class="lv-mr10 lv-cp" data-type="type">搞笑</span>
+            </div>
+          </div>
         </div>
+        <div class="lv-anima-list">
+          <div class="lv-anima-item lv-cp">
+            <div class="lv-anima-poster"><img src="./demo.jpg" alt="" srcset="" class="lv-anima-img"></div>
+            <div class="lv-anima-msg">
+              <div class="lv-c2 lv-mb10">火星特快火</div>
+              <div class="lv-mb10">2023</div>
+              <div class="lv-mb10">法国</div>
+              <div>科幻/动作</div>
+            </div>
+          </div>
+          <div class="lv-anima-item lv-cp">
+            <div class="lv-anima-poster"><img src="./demo.jpg" alt="" srcset="" class="lv-anima-img"></div>
+            <div class="lv-anima-msg">
+              <div class="lv-c2 lv-mb10">火星特快火星特快火星特快火星特快</div>
+              <div class="lv-mb10">2023</div>
+              <div class="lv-mb10">法国</div>
+              <div>科幻/动作</div>
+            </div>
+          </div>
+          <div class="lv-anima-item lv-cp">
+            <div class="lv-anima-poster"><img src="./demo.jpg" alt="" srcset="" class="lv-anima-img"></div>
+            <div class="lv-anima-msg">
+              <div class="lv-c2 lv-mb10">火星特快火星特快火星特快火星特快</div>
+              <div class="lv-mb10">2023</div>
+              <div class="lv-mb10">法国</div>
+              <div>科幻/动作</div>
+            </div>
+          </div>
+          <div class="lv-anima-item lv-cp">
+            <div class="lv-anima-poster"><img src="./demo.jpg" alt="" srcset="" class="lv-anima-img"></div>
+            <div class="lv-anima-msg">
+              <div class="lv-c2 lv-mb10">火星特快火星特快火星特快火星特快</div>
+              <div class="lv-mb10">2023</div>
+              <div class="lv-mb10">法国</div>
+              <div>科幻/动作</div>
+            </div>
+          </div>
+          <div class="lv-anima-item lv-cp">
+            <div class="lv-anima-poster"><img src="./demo.jpg" alt="" srcset="" class="lv-anima-img"></div>
+            <div class="lv-anima-msg">
+              <div class="lv-c2 lv-mb10">火星特快火星特快火星特快火星特快</div>
+              <div class="lv-mb10">2023</div>
+              <div class="lv-mb10">法国</div>
+              <div>科幻/动作</div>
+            </div>
+          </div>
+        </div>
+        <div class="lv-anima-load lv-c2 lv-cp">加载更多</div>
+
       </div>
       <div class="lv-movie lv-dn">电影</div>
       <div class="lv-tv lv-dn">电视剧</div>
     </div>
+  </div>
+
+  <div class="lv-dn">
+    <video width="320" height="240" controls id="lvVideo"></video>
   </div>
 
   <script type="module">
@@ -35,15 +125,15 @@
       init();
       // 通过测试，用加载是否报错的方式判断是否支持在网页播放，
       // 报错就直接给文字提示并显示本地路径，自行找本地播放软件播放
-      const videoEle = document.querySelector('#lvVideo');
-      videoEle.src = "./local/hh.mkv";
+      // const videoEle = document.querySelector('#lvVideo');
+      // videoEle.src = "./local/hh.mkv";
       // videoEle.src = "./local/movie.mp4";
-      videoEle.addEventListener("canplay", (event) => {
-        console.log("Video can start, but not sure it will play through.");
-      });
-      videoEle.addEventListener("error", (e) => {
-        console.error(e);
-      });
+      // videoEle.addEventListener("canplay", (event) => {
+      //   console.log("Video can start, but not sure it will play through.");
+      // });
+      // videoEle.addEventListener("error", (e) => {
+      //   console.error(e);
+      // });
     }
   </script>
 </body>

@@ -3,17 +3,20 @@ import { basename, dirname, resolve, join, extname } from "node:path";
 import { request, get } from 'node:https';
 import { matchData } from './util.mjs';
 
-const targetId = 2;
-const targetName = '蓝眼武士';
+const targetId = 3;
+const targetName = '千年女优';
 const videoType = [".mp4"]; // 遍历文件重命名的判断依据
-const pageType = 2;// 不同类型的词条有些区别，1-一般，2-带有 官方网站 字段的情况
+const pageType = 1;// 不同类型的词条有些区别，1-一般，2-带有 官方网站 字段的情况
 const typePath = ['anima', 'movie', 'tv'];
+// 动画区独有的筛选分类
+const categoryArr = ["剧集", "剧场版", "电影"];
+const categoryValue = categoryArr[2];
 const dir = `local/${typePath[0]}/${targetId}`;
 const originDir = `../${dir}`;
 const jsonFile = `../${dir}/data.json`;
 const filePath = `./demo.html`; // 这个作为分析保持在本地临时数据
 
-const code = "35524249";
+const code = "1307394";
 const options = {
   hostname: 'movie.douban.com',
   port: 443,
@@ -26,6 +29,7 @@ const defaultData = {
   id: targetId,
   path: dir,
   name: targetName,
+  category: categoryValue, // 动画区独有的筛选分类
   ratio: '1080', //分辨率
   poster: '', // 海报
   type: [], // 类型，需要支持搜索，所以单独字段
@@ -183,11 +187,12 @@ const formatPage = (pageType) => {
       if (pageType == 2) {
         regionEle = spanResult[5]; // 这种情况是有的条目增加一个 官方网站 字段
       }
-      const regionStr = regionEle.substring(33, regionEle.length - 6);
-      const regionArr = regionStr.split('/');
-      const region = regionArr.map(ele => {
-        return ele.trim();
-      })
+      const regionSplit = regionEle.split(':');
+      const regionContent = regionSplit[1];
+      const regionText = regionContent.replace(/\s*/g, "");
+      console.log('regionText', regionText)
+      const regionStr = regionText.substring(7, regionText.length - 5);
+      const region = regionStr.split('/');
       defaultData.region = region;
       // 提取日期，这里注意并不是全部都是统一的位置，需要自己查看
       let dateEle = spanResult[6];

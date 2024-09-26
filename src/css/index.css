@@ -52,6 +52,9 @@
   background-color: #fff;
 }
 
+.lv-anima {
+  height: 100%;
+}
 .lv-anima-category {
   display: flex;
   gap: 0 20px;
@@ -80,6 +83,10 @@
 }
 .lv-anima-msg {
   width: 140px;
+}
+.lv-anima-section {
+  overflow: auto;
+  height: calc(100% - 170px);
 }
 .lv-anima-load {
   width: 960px;
